@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guo2025幸运抽奖</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .lottery-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h1 {
+            color: #e74c3c;
+            margin-bottom: 25px;
+        }
+        .prize-display {
+            font-size: 24px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+        }
+        .btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        }
+        .btn:disabled {
+            background: #95a5a6;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        .contact {
+            margin-top: 25px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .prize-animation {
+            animation: pulse 0.5s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <div class="lottery-container">
+        <h1>🎁 Guo2025幸运抽奖</h1>
+        
+        <div id="prizeDisplay" class="prize-display">
+            点击下方按钮开始抽奖
+        </div>
+        
+        <button id="lotteryBtn" class="btn">立即抽奖</button>
+        
+        <div class="contact">
+            中奖后请联系：<b>终曲</b> 兑换奖品<br>
+            QQ: 12345678 | 微信: guo2025_service
+        </div>
+    </div>
+
+    <script>
+        // 奖品配置
+        const prizes = [
+            { name: "谢谢参与", ratio: 50, color: "#95a5a6" },
+            { name: "解锁隐藏题目", ratio: 20, color: "#3498db" },
+            { name: "专属角色(7日)", ratio: 15, color: "#9b59b6" },
+            { name: "创建题目权限", ratio: 8, color: "#2ecc71" },
+            { name: "自定义背景主题", ratio: 5, color: "#f39c12" },
+            { name: "MOD权限", ratio: 2, color: "#e74c3c" }
+        ];
+
+        const btn = document.getElementById('lotteryBtn');
+        const display = document.getElementById('prizeDisplay');
+        let isRolling = false;
+
+        // 抽奖函数
+        function startLottery() {
+            if (isRolling) return;
+            isRolling = true;
+            btn.disabled = true;
+            
+            // 抽奖动画
+            let counter = 0;
+            const rollInterval = setInterval(() => {
+                const tempPrize = prizes[Math.floor(Math.random() * prizes.length)];
+                display.innerHTML = tempPrize.name;
+                display.style.color = tempPrize.color;
+                counter++;
+                
+                if (counter > 10) {
+                    clearInterval(rollInterval);
+                    const finalPrize = getFinalPrize();
+                    showResult(finalPrize);
+                }
+            }, 150);
+        }
+
+        // 按概率获取最终奖品
+        function getFinalPrize() {
+            const totalRatio = prizes.reduce((sum, prize) => sum + prize.ratio, 0);
+            const random = Math.random() * totalRatio;
+            let ratioSum = 0;
+            
+            for (const prize of prizes) {
+                ratioSum += prize.ratio;
+                if (random <= ratioSum) {
+                    return prize;
+                }
+            }
+            return prizes[0];
+        }
+
+        // 显示结果
+        function showResult(prize) {
+            display.innerHTML = prize.name;
+            display.style.color = prize.color;
+            display.classList.add('prize-animation');
+            
+            // 如果是大奖，3秒后跳转到兑换页
+            if (prize.ratio <= 5) {
+                setTimeout(() => {
+                    window.location.href = "https://hydro.ac/prize-redeem?code=" + 
+                        encodeURIComponent(prize.name);
+                }, 3000);
+            }
+            
+            // 5秒后重置按钮
+            setTimeout(() => {
+                isRolling = false;
+                btn.disabled = false;
+                display.classList.remove('prize-animation');
+            }, 5000);
+        }
+
+        // 绑定按钮事件
+        btn.addEventListener('click', startLottery);
+    </script>
+</body>
+</html>
